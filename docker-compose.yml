@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  # El Gateway (Nginx)
+  gateway:
+    image: nginx:stable-alpine
+    ports:
+      - "8080:80" # Mapeamos el puerto 8080 de tu PC al 80 de Nginx
+    volumes:
+      - ./gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - auth-service
+    networks:
+      - bookstore-network
+
+  # Microservicio de Autenticación
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgresql://user:password@auth-db:5432/auth_db?schema=public
+    depends_on:
+      - auth-db
+    networks:
+      - bookstore-network
+
+  # Base de Datos para Auth
+  auth-db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=auth_db
+    ports:
+      - "5433:5432" # Mapeamos un puerto externo diferente para evitar conflictos
+    networks:
+      - bookstore-network
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+
+  # Base de Datos de Prueba para Auth
+  auth-test-db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=auth_test_db
+    ports:
+      - "5434:5432"
+    networks:
+      - bookstore-network
+    volumes:
+      - auth-test-db-data:/var/lib/postgresql/data
+
+networks:
+  bookstore-network:
+    driver: bridge
+
+volumes:
+  auth-db-data:
+  auth-test-db-data:
