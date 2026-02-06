@@ -1,6 +1,12 @@
 version: '3.8'
 
 services:
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - bookstore-network
   # El Gateway (Nginx)
   gateway:
     image: nginx:stable-alpine
@@ -21,6 +27,7 @@ services:
     environment:
       - PORT=3000
       - DATABASE_URL=postgresql://user:password@auth-db:5432/auth_db?schema=public
+      - REDIS_URL=redis://redis:6379
     depends_on:
       - auth-db
     networks:

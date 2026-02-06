@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/JarlShadown/microservices-node/issues"
   },
-  "homepage": "https://github.com/JarlShadown/microservices-node#readme"
+  "homepage": "https://github.com/JarlShadown/microservices-node#readme",
+  "dependencies": {
+    "ioredis": "^5.9.2"
+  }
 }

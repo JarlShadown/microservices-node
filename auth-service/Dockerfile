@@ -3,9 +3,9 @@ FROM node:24-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 COPY prisma ./prisma/
+COPY . .
 RUN npm install
 RUN npx prisma generate
-COPY . .
 RUN npm run build
 
 # Etapa 2: Ejecución
