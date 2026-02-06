@@ -19,7 +19,8 @@
         "moduleDetection": "force",
         "skipLibCheck": true,
         "types": [
-            "node"
+            "node",
+            "jest"
         ]
     },
     "include": [
