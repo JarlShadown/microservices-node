@@ -1,7 +1,7 @@
 import express from "express";
 import validate from "../middlewares/requestValidation.js";
 import { signUpSchema, loginSchema } from "../models/signUpModel.js";
-import { login, signUp, logout } from "../controllers/authController.js";
+import { login, signUp, logout, refreshToken } from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -65,5 +65,28 @@ router.post("/login", validate(loginSchema), login);
  *         description: User logged out successfully
  */
 router.post("/logout", logout);
+
+/**
+ * @swagger
+ * /api/auth/refresh-token:
+ *   post:
+ *     summary: Refresh access token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Token refreshed successfully
+ *       401:
+ *         description: Unauthorized
+ */
+router.post("/refresh-token", refreshToken);
 
 export default router;
