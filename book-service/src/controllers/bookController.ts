@@ -1,65 +1,57 @@
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { AppError } from "../utils/AppError.js";
 
-export const getBooks = async (req: Request, res: Response) => {
-    try {
-        const books = await prisma.book.findMany();
-        res.json(books);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-};
+export const getBooks = asyncHandler(async (req: Request, res: Response) => {
+    const books = await prisma.book.findMany();
+    res.json(books);
+});
 
-export const createBook = async (req: Request, res: Response) => {
-    try {
-        const { title, author, isbn, price } = req.body;
-        const book = await prisma.book.create({
-            data: { title, author, isbn, price },
-        });
-        res.status(201).json(book);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-};
+export const createBook = asyncHandler(async (req: Request, res: Response) => {
+    const { title, author, isbn, price } = req.body;
+    const book = await prisma.book.create({
+        data: { title, author, isbn, price },
+    });
+    res.status(201).json(book);
+});
 
-export const getBookById = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const book = await prisma.book.findUnique({ where: { id: Number(id) } });
-        if (!book) {
-            return res.status(404).json({ message: "Book not found" });
-        }
-        res.json(book);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal server error" });
+export const getBookById = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const book = await prisma.book.findUnique({ where: { id: Number(id) } });
+    if (!book) {
+        throw new AppError("Book not found", 404);
     }
-};
+    res.json(book);
+});
 
-export const updateBook = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const { title, author, isbn, price } = req.body;
-        const book = await prisma.book.update({
-            where: { id: Number(id) },
-            data: { title, author, isbn, price },
-        });
-        res.json(book);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-};
+export const updateBook = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { title, author, isbn, price } = req.body;
 
-export const deleteBook = async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const book = await prisma.book.delete({ where: { id: Number(id) } });
-        res.json(book);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Internal server error" });
+    // Check if book exists first
+    const existingBook = await prisma.book.findUnique({ where: { id: Number(id) } });
+    if (!existingBook) {
+        throw new AppError("Book not found", 404);
     }
-};
+
+    const book = await prisma.book.update({
+        where: { id: Number(id) },
+        data: { title, author, isbn, price },
+    });
+    res.json(book);
+});
+
+export const deleteBook = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    // Check if book exists first
+    const existingBook = await prisma.book.findUnique({ where: { id: Number(id) } });
+    if (!existingBook) {
+        throw new AppError("Book not found", 404);
+    }
+
+    const book = await prisma.book.delete({ where: { id: Number(id) } });
+    res.json(book);
+});
+
