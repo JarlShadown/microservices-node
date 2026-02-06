@@ -61,6 +61,34 @@ services:
     volumes:
       - auth-test-db-data:/var/lib/postgresql/data
 
+  # Microservicio de Libros
+  book-service:
+    build:
+      context: ./book-service
+      dockerfile: Dockerfile
+    environment:
+      - PORT=4000
+      - DATABASE_URL=postgresql://user:password@book-db:5432/book_db?schema=public
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - book-db
+    networks:
+      - bookstore-network
+
+  # Base de Datos para Books
+  book-db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=book_db
+    ports:
+      - "5435:5432"
+    networks:
+      - bookstore-network
+    volumes:
+      - book-db-data:/var/lib/postgresql/data
+
 networks:
   bookstore-network:
     driver: bridge
@@ -68,3 +96,4 @@ networks:
 volumes:
   auth-db-data:
   auth-test-db-data:
+  book-db-data:
