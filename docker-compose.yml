@@ -16,6 +16,7 @@ services:
       - ./gateway/nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - auth-service
+      - chat-service
     networks:
       - bookstore-network
 
@@ -28,6 +29,7 @@ services:
       - PORT=3000
       - DATABASE_URL=postgresql://user:password@auth-db:5432/auth_db?schema=public
       - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=mysecretpassword256lenght_mysecretpassword256lenght_mysecretpassword256lenght_mysecretpassword256lenght_mysecretpassword256lenght_mysecretpassword256lenght
     depends_on:
       - auth-db
     networks:
@@ -70,6 +72,7 @@ services:
       - PORT=4000
       - DATABASE_URL=postgresql://user:password@book-db:5432/book_db?schema=public
       - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=mysecretpassword256lenght_mysecretpassword256lenght_mysecretpassword256lenght_mysecretpassword256lenght_mysecretpassword256lenght_mysecretpassword256lenght
     depends_on:
       - book-db
     networks:
@@ -88,6 +91,22 @@ services:
       - bookstore-network
     volumes:
       - book-db-data:/var/lib/postgresql/data
+
+  # Microservicio de Chat
+  chat-service:
+    build:
+      context: ./chat-service
+      dockerfile: Dockerfile
+    environment:
+      - PORT=5005
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=mysecretpassword256lenght_mysecretpassword256lenght_mysecretpassword256lenght_mysecretpassword256lenght_mysecretpassword256lenght_mysecretpassword256lenght
+    ports:
+      - "5005:5005"
+    depends_on:
+      - redis
+    networks:
+      - bookstore-network
 
 networks:
   bookstore-network:

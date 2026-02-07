@@ -1,7 +1,7 @@
 import express from 'express';
-import bookRoutes from './routes/bookRoutes';
+import bookRoutes from './routes/bookRoutes.js';
 import swaggerUi from 'swagger-ui-express';
-import swaggerSpec from './config/swagger';
+import swaggerSpec from './config/swagger.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 
 const app = express();
